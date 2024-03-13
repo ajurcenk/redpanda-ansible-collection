@@ -1,3 +1,26 @@
+########################### Kafka #############################
+
+kafka_download_base_url: https://downloads.apache.org/kafka
+kafka_download_validate_certs: yes
+kafka_version: 3.5.2
+kafka_scala_version: 2.13
+
+# The kafka user and group to create files/dirs with and for running the kafka service
+kafka_create_user_group: true
+kafka_user: kafka
+kafka_group: kafka
+
+kafka_root_dir: /opt
+kafka_dir: "{{ kafka_root_dir }}/kafka"
+
+# The application log folder (e.g: server.log)
+kafka_log_dir: /var/log/kafka
+
+# Start kafka after installation
+kafka_start: yes
+# Restart kafka on configuration change
+kafka_restart: yes
+
 ########################### Kafka Connect #############################
 
 # TODO Use Redpanda advertised listeners or custom
