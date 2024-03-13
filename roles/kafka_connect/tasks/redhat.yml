@@ -1,0 +1,13 @@
+- name: Install Java
+  yum:
+    name: "{{redhat_java_package_name}}"
+    state: present
+  register: java_install_result
+  until: java_install_result is success  or ansible_check_mode
+  retries: 10
+  delay: 5
+  when: install_java|bool
+  tags:
+  - kafka_connect
+  - connect_setup
+  

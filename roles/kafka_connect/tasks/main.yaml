@@ -8,26 +8,40 @@
   tags:
     - kafka_connect
 
+- name: Red Hat Repo Setup and Java Installation
+  include_tasks: redhat.yml
+  when: ansible_os_family == "RedHat"
+  tags:
+  - kafka_connect
+
+- name: Ubuntu Repo Setup and Java Installation
+  include_tasks: ubuntu.yml
+  when: ansible_distribution == "Ubuntu"
+
+- name: Debian Repo Setup and Java Installation
+  include_tasks: debian.yml
+  when: ansible_distribution == "Debian"
+
 - name: Create kafka group
   ansible.builtin.group:
-    name: '{{ kafka_group }}'
+    name: '{{ kafka_connect_group }}'
     state: present
     system: yes
   when: kafka_create_user_group | bool
   tags:
-    - kafka_user_group
+    - kafka_connect_user_group
     - kaka_connect
 
 - name: Create kafka user
   ansible.builtin.user:
-    name: '{{ kafka_user }}'
-    group: '{{ kafka_group }}'
+    name: '{{ kafka_connect_user }}'
+    group: '{{ kafka_connect_group }}'
     state: present
     createhome: no
     system: yes
   when: kafka_create_user_group | bool
   tags:
-    - kafka_user
+    - kafka_connect_user
     - kaka_connect
 
 - name: Check if Kafka has already been downloaded and unpacked
@@ -53,8 +67,8 @@
     src: /tmp/kafka_{{ kafka_scala_version }}-{{ kafka_version }}.tgz
     dest: '{{ kafka_root_dir }}'
     copy: no
-    group: '{{ kafka_group }}'
-    owner: '{{ kafka_user }}'
+    group: '{{ kafka_connect_group }}'
+    owner: '{{ kafka_connect_user }}'
   when: not dir.stat.exists
   tags:
     - kafka_unpack
@@ -65,8 +79,8 @@
     src: '{{ kafka_root_dir }}/kafka_{{ kafka_scala_version }}-{{ kafka_version }}'
     dest: '{{ kafka_dir }}'
     state: link
-    group: '{{ kafka_group }}'
-    owner: '{{ kafka_user }}'
+    group: '{{ kafka_connect_group }}'
+    owner: '{{ kafka_connect_user }}'
   tags:
     - kafka_dirs
     - kaka_connect
@@ -75,8 +89,8 @@
   ansible.builtin.file:
     path: '{{ kafka_log_dir }}'
     state: directory
-    group: '{{ kafka_group }}'
-    owner: '{{ kafka_user }}'
+    group: '{{ kafka_connect_group }}'
+    owner: '{{ kafka_connect_user }}'
     mode: 0755
   tags:
     - kafka_dirs
@@ -95,8 +109,8 @@
     src: '{{ kafka_log_dir }}'
     dest: '{{ kafka_dir }}/logs'
     state: link
-    group: '{{ kafka_group }}'
-    owner: '{{ kafka_user }}'
+    group: '{{ kafka_connect_group }}'
+    owner: '{{ kafka_connect_user }}'
     mode: 0755
     follow: no
   when: not application_logs_dir.stat.exists
@@ -108,8 +122,8 @@
   ansible.builtin.template:
     src: connect-distributed.properties.j2
     dest: '{{ kafka_dir }}/config/connect-distributed.properties'
-    group: '{{ kafka_group }}'
-    owner: '{{ kafka_user }}'
+    group: '{{ kafka_connect_group }}'
+    owner: '{{ kafka_connect_user }}'
     mode: 0644
   tags:
     - kafka_config 
