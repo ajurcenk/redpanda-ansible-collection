@@ -18,6 +18,7 @@
 - name: Print kafka_connect_local_plugin_files
   debug:
     msg: "The kafka_connect_local_plugin_files is {{ kafka_connect_local_plugin_files }}"
+  when: kafka_connect_plugins|length > 0  
 
 - name: Copy Kafka Connect Local Plugins from Controller to Host
   include_tasks: copy_files.yaml

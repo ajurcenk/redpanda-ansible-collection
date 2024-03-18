@@ -134,3 +134,11 @@ kafka_connect_authentication_type: "{{ 'mtls' if kafka_connect_ssl_mutual_auth_e
 kafka_connect_health_checks_enabled: true
 
 kafka_connect_health_check_delay: 10
+
+### Connect plugins list, example
+### connect_plugins:
+###   - "/tmp/local_plugins/confluentinc-kafka-connect-datagen-0.6.5.zip"
+connect_plugins: []
+
+### Kafka Connect plugins destination folder
+kafka_connect_plugins_dest: /opt/connectors

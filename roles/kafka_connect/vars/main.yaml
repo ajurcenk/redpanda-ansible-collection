@@ -11,16 +11,7 @@ kafka_connect:
 ### Kafka Connect plugins support
 
 ### Local Kakfa Connect plugis folder
-# kafka_connect_plugins: []
-# TODO Remove it
-kafka_connect_plugins: 
-- "/tmp/local_plugins/confluentinc-kafka-connect-datagen-0.6.5.zip"
+kafka_connect_plugins: "{{connect_plugins | default([]) }}"
 
 ### Remote Kafka Connect plugins locations
 kafka_connect_plugins_remote: []
-
-### Kafka Connect plugins destination folder
-kafka_connect_plugins_dest: /opt/connectors
-
-
-
