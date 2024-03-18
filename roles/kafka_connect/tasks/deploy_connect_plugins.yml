@@ -1,0 +1,24 @@
+---
+- name: Ensure Plugin Dirs
+  file:
+    path: "{{item}}"
+    state: directory
+    group: "{{kafka_connect_group}}"
+    owner: "{{kafka_connect_user}}"
+    mode: '755'
+  when: item != '/usr/share/java'
+  with_items: "{{ kafka_connect_plugin_path.split(',') }}"
+
+- set_fact:
+  kafka_connect_local_plugin_files: "{{ kafka_connect_local_plugin_files | default([]) + [{ 'source_path': item, 'destination_path': item }] }}"
+  with_items: "{{kafka_connect_plugins}}"
+
+- name: Copy Kafka Connect Local Plugins from Controller to Host
+  include_role:
+    name: common
+    tasks_from: copy_files.yml
+  vars:
+    copy_files: "{{kafka_connect_local_plugin_files}}"
+    user: "{{kafka_connect_user}}"
+    group: "{{kafka_connect_group}}"
+  when: kafka_connect_plugins|length > 0

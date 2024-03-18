@@ -121,10 +121,79 @@
 - name: Template configuration file to connect-distributed.properties
   ansible.builtin.template:
     src: connect-distributed.properties.j2
-    dest: '{{ kafka_dir }}/config/connect-distributed.properties'
+    dest: '{{ kafka_connect_config_file }}'
     group: '{{ kafka_connect_group }}'
     owner: '{{ kafka_connect_user }}'
     mode: 0644
   tags:
     - kafka_config 
+    - kaka_connect
+
+- name: Create Kafka Connect Service 
+  template:
+    src: kafka-connect.service.j2
+    dest: "{{ kafka_connect.systemd_file }}"
+    mode: '644'
+    owner: root
+    group: root
+  tags:
+    - systemd
+    - kaka_connect  
+
+- name: Create Service Override Directory
+  file:
+    path: "{{kafka_connect.systemd_override | dirname}}"
+    owner: "{{kafka_connect_user}}"
+    group: "{{kafka_connect_group}}"
+    state: directory
+    mode: '640'
+  tags:
+    - systemd
+    - kaka_connect
+
+- name: Write Service Overrides
+  template:
+    src: override.conf.j2
+    dest: "{{ kafka_connect.systemd_override }}"
+    mode: '640'
+    owner: root
+    group: root
+  #notify: restart connect distributed
+  tags:
+    - systemd
+    - kaka_connect    
+
+
+### TODO Use smart service restart
+- name: Check the status of the Kafka Connect service
+  systemd:
+    name: "{{ kafka_connect_service_name }}"
+  register: service_status
+
+- name: Print Kafka Connect inventory hostname
+  debug:
+    msg: "The status of the service: {{ service_status.status.ActiveState }}"
+
+- name: Stop the Kafka Connect service if it's running
+  systemd:
+    name: "{{ kafka_connect_service_name }}"
+    state: stopped
+  when: service_status.status.ActiveState == "running" or service_status.status.ActiveState == "active"
+
+- name: Startup Delay
+  wait_for:
+    timeout: "{{ kafka_connect_health_check_delay }}"
+  when: service_status.status.ActiveState == "running" or service_status.status.ActiveState == "active"  
+
+- name: Start the Kafka Connect service if it's stopped
+  systemd:
+    name: "{{ kafka_connect_service_name }}"
+    state: started
+
+- name: Health Check
+  include_tasks: health_check.yml
+  when:
+    - kafka_connect_health_checks_enabled|bool
+  tags: 
+    - health_check
     - kaka_connect

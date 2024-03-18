@@ -1,0 +1,20 @@
+systemd_base_dir: "{{'/lib/systemd/system' if ansible_os_family == 'Debian' else '/usr/lib/systemd/system'}}"
+
+kafka_connect_systemd_file: "{{systemd_base_dir}}/{{kafka_connect_service_name}}.service"
+
+kafka_connect:
+  server_start_file: "{{ kafka_connect_server_start_file }}"
+  systemd_file: "{{systemd_base_dir}}/{{ kafka_connect_service_name }}.service"
+  config_file: "{{ kafka_connect_config_file }}"
+  systemd_override: /etc/systemd/system/{{kafka_connect_service_name}}.service.d/override.conf
+
+### Kafka Connect plugins support
+
+### Local Kakfa Connect plugis folder
+kafka_connect_plugins: []
+
+### Remote Kafka Connect plugins locations
+kafka_connect_plugins_remote: []
+
+### Kafka Connect plugins destination folder
+kafka_connect_plugins_dest: /opt/connectors
