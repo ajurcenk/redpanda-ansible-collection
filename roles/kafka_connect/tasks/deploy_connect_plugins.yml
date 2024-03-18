@@ -9,16 +9,40 @@
   when: item != '/usr/share/java'
   with_items: "{{ kafka_connect_plugin_path.split(',') }}"
 
-- set_fact:
-  kafka_connect_local_plugin_files: "{{ kafka_connect_local_plugin_files | default([]) + [{ 'source_path': item, 'destination_path': item }] }}"
+- name: Set fact kafka_connect_local_plugin_files
+  set_fact:
+    kafka_connect_local_plugin_files: "{{ kafka_connect_local_plugin_files | default([]) + [{ 'source_path': item, 'destination_path': item }] }}"
   with_items: "{{kafka_connect_plugins}}"
 
+# TODO Remove it
+- name: Print kafka_connect_local_plugin_files
+  debug:
+    msg: "The kafka_connect_local_plugin_files is {{ kafka_connect_local_plugin_files }}"
+
 - name: Copy Kafka Connect Local Plugins from Controller to Host
-  include_role:
-    name: common
-    tasks_from: copy_files.yml
+  include_tasks: copy_files.yaml
   vars:
     copy_files: "{{kafka_connect_local_plugin_files}}"
     user: "{{kafka_connect_user}}"
     group: "{{kafka_connect_group}}"
   when: kafka_connect_plugins|length > 0
+
+
+- name: Unzip Kafka Connect Local Plugins Archives
+  ansible.builtin.unarchive:
+    src: "{{item.destination_path}}"
+    dest: "{{ kafka_connect_plugins_dest }}"
+    remote_src: yes
+  with_items: "{{kafka_connect_local_plugin_files}}"  
+  when: kafka_connect_plugins|length > 0
+  # TODO Add Kafka Connect service restart
+  # notify: restart connect distributed   
+
+- name: Set Permissions on all Plugin Files
+  file:
+    path: "{{ kafka_connect_plugins_dest }}"
+    owner: "{{kafka_connect_user}}"
+    group: "{{kafka_connect_group}}"
+    recurse: true
+  when: kafka_connect_plugins_remote|length > 0 or kafka_connect_plugins|length > 0
+

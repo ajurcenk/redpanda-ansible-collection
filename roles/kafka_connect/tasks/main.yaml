@@ -118,6 +118,9 @@
     - kafka_dirs
     - kaka_connect
 
+- name: Install Connect Plugins
+  include_tasks: deploy_connect_plugins.yml
+
 - name: Template configuration file to connect-distributed.properties
   ansible.builtin.template:
     src: connect-distributed.properties.j2
