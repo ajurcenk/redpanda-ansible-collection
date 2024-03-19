@@ -1,0 +1,10 @@
+---
+- name: Deploy Connector
+  hosts: connector
+  gather_facts: no
+  tasks:
+    - name: Deploy Kafka Connect Connector
+      ansible.builtin.include_role:
+        name: redpanda.cluster.kafka_connect_connector
+        tasks_from: update_connector.yaml
+

@@ -1,0 +1,18 @@
+---
+- name: Read Connector Configuration
+  include_tasks: read_connector_json.yaml
+
+- name: Deploy Kafka Connect connector
+  uri:
+    url: "{{ kafka_connect_url }}/connectors"
+    method: POST
+    body: "{{ connector_config | to_json }}"
+    body_format: json
+    headers:
+      Content-Type: "application/json"
+    status_code: [201, 409]
+  register: deployment_response
+
+- name: Print deployment response
+  debug:
+    var: deployment_response.json

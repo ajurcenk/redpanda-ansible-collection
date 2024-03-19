@@ -1,0 +1,12 @@
+---
+- name: Convert JSON connector configuration content to a dictionary
+  set_fact:
+        connector_config: "{{ connector_config_json }}"
+
+- name: Set connector name
+  set_fact:
+        connector_name: "{{ connector_config['name'] }}"
+
+- name: Print connector config
+  ansible.builtin.debug:
+    msg: "Connector config for connector: {{ connector_name }} : {{ connector_config_json | to_nice_json }}"

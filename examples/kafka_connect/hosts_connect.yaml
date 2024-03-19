@@ -1,0 +1,19 @@
+all:
+    children:
+        connect:
+            hosts:
+                <set connect host name>:
+                    connect_plugins:
+                        - "/tmp/local_plugins/confluentinc-kafka-connect-datagen-0.6.5.zip"
+        connector:
+            hosts:
+                <set connect host name>:
+                    kafka_connect_url: "http://<set connect host>:8083"
+                    connector_config_json:  "{{ lookup('file', '/tmp/data_gen_connector.json') }}"
+
+    vars:
+        ansible_connection: ssh
+        ansible_user: test
+        ansible_ssh_pass: <set value> 
+        ansible_become_pass: <set value>
+        ansible_become: True

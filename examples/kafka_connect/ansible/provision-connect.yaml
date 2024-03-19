@@ -1,0 +1,8 @@
+---
+- name: Provision Kafka Connect nodes
+  hosts: connect
+  tasks:
+    - name: Install Kafka Connect
+      ansible.builtin.include_role:
+        name: redpanda.cluster.kafka_connect
+

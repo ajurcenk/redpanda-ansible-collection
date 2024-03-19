@@ -1,0 +1,27 @@
+---
+- name: Read Connector Configuration
+  include_tasks: read_connector_json.yaml
+
+- name: Check if the connector already exists
+  uri:
+    url: "{{ kafka_connect_url }}/connectors/{{ connector_name }}/status"
+    method: GET
+    return_content: yes
+    status_code: [200, 404]
+  register: connector_status
+
+- name: Update connector if the connector exists
+  uri:
+    url: "{{ kafka_connect_url }}/connectors/{{ connector_name }}/config"
+    method: PUT
+    body: "{{ connector_config['config'] | to_json }}"
+    body_format: json
+    headers:
+      Content-Type: "application/json"
+    status_code: [201, 200]
+  register: deployment_response
+
+- name: Print update conenctor response
+  debug:
+    var: deployment_response.json
+  when: connector_status.status == 200

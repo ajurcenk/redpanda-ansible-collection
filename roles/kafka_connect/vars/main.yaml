@@ -1,3 +1,4 @@
+# You can override variable when running your playbook by using the -e option:
 systemd_base_dir: "{{'/lib/systemd/system' if ansible_os_family == 'Debian' else '/usr/lib/systemd/system'}}"
 
 kafka_connect_systemd_file: "{{systemd_base_dir}}/{{kafka_connect_service_name}}.service"

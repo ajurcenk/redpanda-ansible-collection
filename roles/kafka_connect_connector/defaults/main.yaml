@@ -1,0 +1,5 @@
+### Kafka Connect URL
+kafka_connect_url: ""
+
+### Kafka Connect configuration files
+kafka_connect_config_file_path: ""

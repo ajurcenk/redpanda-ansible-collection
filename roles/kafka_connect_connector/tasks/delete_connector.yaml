@@ -1,0 +1,18 @@
+---
+- name: Read Connector Configuration
+  include_tasks: read_connector_json.yaml
+
+- name: Check if the connector already exists
+  uri:
+    url: "{{ kafka_connect_url }}/connectors/{{ connector_name }}/status"
+    method: GET
+    return_content: yes
+    status_code: [200, 404]
+  register: connector_status
+
+- name: Delete the existing connector if it exists
+  uri:
+    url: "{{ kafka_connect_url }}/connectors/{{ connector_name }}"
+    method: DELETE
+    status_code: [200, 204]
+  when: connector_status.status == 200
